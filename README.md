@@ -134,11 +134,12 @@ The modeling framework also generalizes to other rare-event prediction domains s
 ---
 
 ## Repository Structure
+```
 data/ # Raw and processed datasets
 notebooks/ # Exploratory analysis and modeling notebooks
 src/ # Feature engineering and training scripts
 models/ # Saved trained models
-
+```
 ---
 
 ## Conclusion
