@@ -1,0 +1,7 @@
+echo ".env
+__pycache__/
+*.pyc
+data/
+models/
+reports/
+.vscode/" > .gitignore
