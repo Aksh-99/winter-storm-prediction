@@ -1,156 +1,191 @@
-# Flash-Freeze Risk Prediction – NYC
+# Winter Storm Risk Prediction System  
+### A Data-Driven Infrastructure Risk Modeling Project for New York City
 
-## Overview
+## 1. Executive Summary
 
-This project builds a machine learning system to predict flash-freeze events in New York City 24 hours in advance using historical weather data.
+Severe winter storms in New York City create significant public safety risks, transportation disruptions, and infrastructure strain. Flash-freeze events in particular are difficult to anticipate and can lead to hazardous road conditions, transit delays, and emergency response challenges.
 
-A flash-freeze occurs when precipitation is followed by a rapid temperature drop below freezing, creating dangerous ice conditions on roads and sidewalks.
+This project builds a machine learning–based winter storm risk prediction system using historical meteorological data. The system predicts the probability of flash-freeze events and provides interpretable insights into the atmospheric conditions that drive high-risk scenarios.
 
-This is a rare-event classification problem focused on risk prediction rather than general weather forecasting.
-
----
-
-## Why This Matters (Impact)
-
-Flash-freeze events are particularly hazardous because they:
-
-- Create black ice with little visible warning  
-- Increase vehicle accidents and pedestrian injuries  
-- Disrupt morning commute and public transit  
-- Require rapid municipal salt deployment  
-
-Accurately predicting flash-freeze risk in advance can help:
-
-- City services pre-treat roads  
-- Transit systems prepare for delays  
-- Schools and businesses make informed decisions  
-- Infrastructure planners reduce winter-related hazards  
-
-This model predicts flash-freeze risk 24 hours in advance with approximately 0.87 ROC-AUC, improving rare-event recall by roughly 13% over a logistic regression baseline.  
-Such a system could support data-driven winter response planning and reduce avoidable slip-related incidents.
+The goal is not just to classify weather events, but to design a reproducible and extensible risk modeling pipeline that could support proactive infrastructure planning and operational decision-making.
 
 ---
 
-## Data
+## 2. Problem Statement
 
-Source:  
-National Oceanic and Atmospheric Administration (NOAA) historical weather data.
+Flash-freeze events occur when temperatures rapidly drop below freezing following precipitation. These events:
 
-Features include:
+- Increase accident rates
+- Disrupt transportation systems
+- Require rapid municipal response
+- Create public safety hazards
 
-- Temperature (current and rolling averages)  
-- Precipitation  
-- Wind speed  
-- Atmospheric pressure  
-- Humidity  
-- Temperature change over 6–12 hours  
-- Seasonal indicators (winter flag, month)  
+Traditional weather forecasts provide raw temperature and precipitation values but do not directly quantify flash-freeze risk.
 
-Target variable:
+This project reframes the problem as:
 
-Binary classification:
-- 1 = Flash-freeze event  
-- 0 = No flash-freeze  
-
-Flash-freeze is defined as:
-- Precipitation occurs  
-- Temperature drops to ≤ 32°F within a defined time window  
+> Can we predict the probability of a flash-freeze event using historical weather data and machine learning?
 
 ---
 
-## Modeling Approach
+## 3. Dataset
 
-Baseline model:
-- Logistic Regression  
+### Source
+Historical daily weather data from a NYC weather station (multi-year dataset).
 
-Final model:
-- XGBoost Classifier  
+### Observations
+- 50,000+ daily records
+- Multiple meteorological features including:
+  - Temperature (min, max, mean)
+  - Precipitation
+  - Wind speed
+  - Atmospheric pressure
+  - Humidity
 
-XGBoost was selected because it:
+### Target Variable
+Binary indicator:
+- 1 = Flash-freeze event
+- 0 = No event
 
-- Captures nonlinear feature interactions  
-- Performs strongly on structured tabular data  
-- Handles imbalanced classification effectively  
-
-Evaluation strategy:
-
-- Time-based train/test split to prevent leakage  
-- Cross-validation  
-- Metrics:
-  - ROC-AUC  
-  - Precision-Recall AUC  
-  - F1 Score  
-  - Confusion Matrix  
+The target was engineered using domain logic combining precipitation and temperature thresholds.
 
 ---
 
-## Results
+## 4. Methodology
 
-| Model                | ROC-AUC | PR-AUC | Recall |
-|----------------------|---------|--------|--------|
-| Logistic Regression  | 0.78    | 0.42   | 0.61   |
-| XGBoost              | 0.87    | 0.58   | 0.74   |
+### 4.1 Data Processing
 
-Key improvements:
+- Cleaned missing values
+- Engineered temporal features
+- Created derived variables capturing temperature deltas and precipitation interactions
+- Ensured no target leakage during feature generation
 
-- +9% ROC-AUC over baseline  
-- +13% improvement in recall for rare flash-freeze events  
-- Stronger identification of high-risk days while controlling false positives  
+### 4.2 Modeling Approach
 
-The model demonstrates improved discrimination and better detection of hazardous conditions compared to a linear baseline.
+Primary Model:
+- XGBoost Classifier
 
----
+Baseline Comparison:
+- Logistic Regression
 
-## Key Insights (Interpretability)
+Evaluation Strategy:
+- Train/test split
+- ROC-AUC as primary metric
+- Precision-Recall analysis
+- Confusion matrix
 
-Using SHAP analysis, the most important predictors include:
+### 4.3 Model Performance
 
-- Rapid temperature drop (6–12 hour delta)  
-- Precipitation intensity  
-- Wind speed  
-- Late-evening timing  
-- Prior-day ground temperature  
+- ROC-AUC: ~0.87
+- Significant improvement over baseline logistic regression
+- Balanced precision and recall
 
-Notable finding:
-
-Precipitation alone is not sufficient to predict flash-freeze risk.  
-The rate of temperature decline is the strongest driver.
-
-This confirms domain intuition while quantifying actionable risk thresholds.
+The model demonstrates strong discriminative ability in identifying high-risk flash-freeze conditions.
 
 ---
 
-## Real-World Usefulness (Decision Support)
+## 5. Model Interpretability
 
-This system can support:
+To ensure transparency and explainability:
 
-- Municipal winter response planning  
-- Infrastructure preparedness  
-- Transit reliability management  
-- Insurance and climate risk modeling  
+- SHAP (SHapley Additive Explanations) was used
+- Feature importance analysis conducted
+- Global and local explanation patterns examined
 
-The modeling framework also generalizes to other rare-event prediction domains such as credit risk, fraud detection, and operational disruption forecasting.
+Key Drivers Identified:
+- Rapid temperature drops
+- Precipitation intensity
+- Low minimum temperatures
+- Pressure shifts
+
+This interpretability layer enables the model to function not just as a predictor, but as an analytical tool for understanding risk drivers.
 
 ---
 
-## Repository Structure
+## 6. System Architecture
+
+The project is structured as a modular pipeline:
+
+1. Data ingestion
+2. Feature engineering
+3. Model training
+4. Model evaluation
+5. Prediction script
+
+Repository Structure:
+
+- `data_building.py` — Data preprocessing and feature generation
+- `train.py` — Model training and evaluation
+- `predict.py` — Inference pipeline
+- `requirements.txt` — Dependencies
+
+The pipeline design allows reproducibility and future extensibility.
+
+---
+
+## 7. Business and Infrastructure Impact
+
+This system could support:
+
+- Proactive road salting and de-icing
+- Transit schedule adjustment
+- Emergency resource allocation
+- Risk-based municipal alerts
+
+Rather than reacting to weather forecasts, decision-makers could operate on quantified risk probabilities.
+
+Potential Extensions:
+- Cost-sensitive modeling to penalize false negatives
+- Multi-day forward risk prediction
+- Multi-station spatial modeling
+- Deployment as an API or dashboard
+
+---
+
+## 8. Limitations
+
+- Single-station dataset
+- Binary classification rather than severity scoring
+- No real-time deployment
+- Limited spatial generalization
+
+These constraints are acknowledged as areas for future enhancement.
+
+---
+
+## 9. Future Roadmap
+
+Planned Improvements:
+
+- Multi-source data integration (NYC Open Data, transit data)
+- Ensemble model comparison
+- Time-series modeling (LSTM or temporal boosting)
+- Deployment via Streamlit or REST API
+- Infrastructure cost impact modeling
+
+The long-term goal is to evolve this from a classification model into a full winter storm risk intelligence system.
+
+---
+
+## 10. Technologies Used
+
+- Python
+- Pandas
+- NumPy
+- Scikit-learn
+- XGBoost
+- SHAP
+- Matplotlib / Seaborn
+
+---
+
+## 11. Reproducibility
+
+To run the project locally:
+
+```bash
+pip install -r requirements.txt
+python data_building.py
+python train.py
+python predict.py
 ```
-data/ # Raw and processed datasets
-notebooks/ # Exploratory analysis and modeling notebooks
-src/ # Feature engineering and training scripts
-models/ # Saved trained models
-```
----
-
-## Conclusion
-
-This project demonstrates:
-
-- Clear problem framing around rare-event risk  
-- Time-series feature engineering  
-- Model comparison against a baseline  
-- Proper evaluation for imbalanced data  
-- Interpretability using SHAP  
-- Practical decision-support orientation  
-
-Rather than simply predicting snowfall, this system focuses on actionable winter hazard risk, making it relevant to infrastructure planning, urban safety, and applied risk analytics.
